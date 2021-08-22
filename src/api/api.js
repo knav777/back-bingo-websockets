@@ -5,61 +5,80 @@ class Api{
     async requestPlay( req, res ){
 
         let resp = {};
-        let userid = 0;
-        const data = req.body || {};
-        const action = data.action || '';
-        const io = require( '../index' ).VARS.io;
-
-        const IDs = await io.allSockets();
-        let count = io.engine.clientsCount;
-
-        if( action === 'join' ){
-
-            let board = [];
-
-            for( let i = 0; i < 5 ; i++ ){
-                board[i] = [];
-
-                for( let j = 0; j < 5; j++ ){
-                    board[i][j] = Api.generateRandom( 1, 75 );
-                }
-            }
-
-            io.on( 'connection', ( socket ) => {
-
-                userid = socket.id;
-                console.log( 'socket connection opened ID:', socket.id );
-    
-                socket.on("disconnect", () => {
-                    
-                });
-            });
-
-            const fetch = require('node-fetch');
-
-            const front = await fetch( 'http://' + req.headers.host )
-                            .then( resultadoRaw => {
-                                
-                                return resultadoRaw.text();
-                            })
-                            
-                            .then( resultadoComoTexto => {
-                                return resultadoComoTexto;
-                            });
-
-            resp = {
-                "action": "joined",
-                "userid": count,
-                "board": board,
-                "connection": front
-            };
+        
+        if( req.method === 'POST' ){
             
-            res.json( resp );
-        }
-        else if( action === 'received' ){
+            var userid = 0;
+            const data = req.body;
+            const action = data.action;
+            var io = require( '../index' ).VARS.io;
+    
+            const IDs = await io.allSockets();
+            let count = io.engine.clientsCount;
+    
+            if( action === 'join' ){
+    
+                let board = [];
+    
+                for( let i = 0; i < 5 ; i++ ){
+                    board[i] = [];
+    
+                    for( let j = 0; j < 5; j++ ){
 
+                        if( i === 2 && j === 2 ){
+                            board[i][j] = 0;
+                        }
+                        else{
+                            board[i][j] = Api.generateRandom( 1, 75 );
+                        }
+                    }
+                }
 
+                io.on( 'connection', ( socket ) => {
+    
+                    console.log( 'socket connection opened ID:', socket.id );
+                    //userid = socket.id;
+    
+                    /* let data = {
+                        "hola": "hola"
+                    };
+    
+                    setInterval( () => {
+                        socket.emit( 'game:join', data );
+                    }, 1000 )
+                     */
+                    /* socket.on( 'game:join', function(data) {
+    
+                        data = {
+                            "hola": "hey"
+                        };
+    
+                        console.log( data )
+                        
+                    }); */
+        
+                    socket.on("disconnect", () => {
+                        console.log("Client disconnected");
+                    });
+                });
+    
+                resp = {
+                    "action": "joined",
+                    "userid": userid,
+                    "board": board,
+                };
+                
+                res.json( resp );
+            }
+            else if( action === 'received' ){
+    
+    
+            }
         }
+        else{
+            res.send( 'received' );
+        }
+
     }
 
     static generateRandom( min, max ) {
