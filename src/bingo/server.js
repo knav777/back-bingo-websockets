@@ -28,7 +28,7 @@ class Server{
             this.app.set( 'json spaces', 2 );
             this.app.use( express.static( this.front_files_path ) );
 
-            this.app.use( '/api/cartons', require( '../api/routes/cartons' ) );
+            this.app.use( '/api/bingo', require( '../api/routes/bingo' ) );
             
             return true;
 
