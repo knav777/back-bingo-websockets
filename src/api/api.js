@@ -37,25 +37,15 @@ class Api{
                 io.on( 'connection', ( socket ) => {
     
                     console.log( 'socket connection opened ID:', socket.id );
-                    //userid = socket.id;
-    
-                    /* let data = {
-                        "hola": "hola"
-                    };
-    
-                    setInterval( () => {
-                        socket.emit( 'game:join', data );
-                    }, 1000 )
-                     */
-                    /* socket.on( 'game:join', function(data) {
-    
+                    userid = socket.id;
+                    
+                    socket.on( 'game:join', function(data) {
+
                         data = {
-                            "hola": "hey"
-                        };
-    
-                        console.log( data )
-                        
-                    }); */
+                            "hola": "hola"
+                        }
+                        socket.emit( 'game:joined', data );
+                    });
         
                     socket.on("disconnect", () => {
                         console.log("Client disconnected");
