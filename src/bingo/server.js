@@ -21,13 +21,20 @@ class Server{
             this.app.use( express.urlencoded( {extended: false} ) );
             this.app.use( express.json() );
 
-            this.front_files_path = this.path;
-            this.port = process.env.PORT || 3000;
-            
-            this.app.set( 'port', this.port );
-            this.app.set( 'json spaces', 2 );
-            this.app.use( express.static( this.front_files_path ) )
+            this.app.use( ( req, res, next ) => {
+                //allow access from every, elminate CORS
+                res.setHeader('Access-Control-Allow-Origin','*');
+                res.removeHeader('x-powered-by');
+                //set the allowed HTTP methods to be requested
+                res.setHeader('Access-Control-Allow-Methods','*');
+                //headers clients can use in their requests
+                res.setHeader('Access-Control-Allow-Headers','Content-Type');
+                //allow request to continue and be handled by routes
+                next();
+            } );
 
+            this.port = process.env.PORT || 3000;            
+            this.app.set( 'port', this.port );
             this.app.use( '/api/bingo', require( '../api/routes/bingo' ) );
             
             return true;
