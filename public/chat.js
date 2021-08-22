@@ -1,0 +1,2 @@
+// conenction
+let socket = io();

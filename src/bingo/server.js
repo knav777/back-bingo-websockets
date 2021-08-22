@@ -26,7 +26,7 @@ class Server{
             
             this.app.set( 'port', this.port );
             this.app.set( 'json spaces', 2 );
-            this.app.use( express.static( this.front_files_path ) );
+            this.app.use( express.static( this.front_files_path ) )
 
             this.app.use( '/api/bingo', require( '../api/routes/bingo' ) );
             
@@ -61,9 +61,19 @@ class Server{
         this.path = path;
     }
 
+    getToolPath(){
+        
+        return this.path;
+    }
+
     getLastError(){
 
         return this.last_error;
+    }
+
+    getAppServer(){
+
+        return this.app;
     }
 }
 

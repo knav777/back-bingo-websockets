@@ -6,14 +6,9 @@ class Api{
 
         let resp = {};
         let userid = 0;
-        const data = req.body;
-        const action = data.action;
-        const io = require( '../index' ).io;
-
-        io.on( 'connection', ( socket ) => {
-            userid = socket.id;
-            console.log( 'socket connection opened ID:', socket.id );
-        });
+        const data = req.body || {};
+        const action = data.action || '';
+        const io = require( '../index' ).VARS.io;
 
         const IDs = await io.allSockets();
         let count = io.engine.clientsCount;
@@ -30,10 +25,33 @@ class Api{
                 }
             }
 
+            io.on( 'connection', ( socket ) => {
+
+                userid = socket.id;
+                console.log( 'socket connection opened ID:', socket.id );
+    
+                socket.on("disconnect", () => {
+                    
+                });
+            });
+
+            const fetch = require('node-fetch');
+
+            const front = await fetch( 'http://' + req.headers.host )
+                            .then( resultadoRaw => {
+                                
+                                return resultadoRaw.text();
+                            })
+                            
+                            .then( resultadoComoTexto => {
+                                return resultadoComoTexto;
+                            });
+
             resp = {
                 "action": "joined",
                 "userid": count,
-                "board": board
+                "board": board,
+                "connection": front
             };
             
             res.json( resp );
