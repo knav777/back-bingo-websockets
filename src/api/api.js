@@ -5,16 +5,46 @@ class Api{
     async requestPlay( req, res ){
 
         let resp = {};
+        var userid = 0;
+
+        const io = require( '../index' ).VARS.io;
+        const IDs = await io.allSockets();
+        const count = io.engine.clientsCount;
+
+        io.on( 'connection', ( socket ) => {
+
+            console.log( 'socket connection opened ID:', socket.id );
+            userid = count;
+            
+            socket.on( 'game:join', function(data) {
+                
+                data = {
+                    "hola": "hola"
+                }
+                console.log( data );
+                socket.emit( 'game:joined', data );
+            });
+
+            let interval = null;
+
+            if( interval ){
+                clearInterval( interval );
+            }
+
+            interval = setInterval( () =>{
+                let data = 'hoola';
+                socket.emit('game:joined', data );
+            }, 1000 )
+
+            socket.on("disconnect", () => {
+                console.log("Client disconnected");
+            });
+        });
         
         if( req.method === 'POST' ){
-            
-            var userid = 0;
+        
             const data = req.body;
             const action = data.action;
-            var io = require( '../index' ).VARS.io;
-    
-            const IDs = await io.allSockets();
-            let count = io.engine.clientsCount;
     
             if( action === 'join' ){
     
@@ -33,24 +63,6 @@ class Api{
                         }
                     }
                 }
-
-                io.on( 'connection', ( socket ) => {
-    
-                    console.log( 'socket connection opened ID:', socket.id );
-                    userid = socket.id;
-                    
-                    socket.on( 'game:join', function(data) {
-
-                        data = {
-                            "hola": "hola"
-                        }
-                        socket.emit( 'game:joined', data );
-                    });
-        
-                    socket.on("disconnect", () => {
-                        console.log("Client disconnected");
-                    });
-                });
     
                 resp = {
                     "action": "joined",
