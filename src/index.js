@@ -16,7 +16,7 @@ const app = server.getAppServer();
 const server_created = http.createServer( app );
 const io = socketIo( server_created, {
     cors: {
-      origin: "https://f83a-190-39-250-82.ngrok.io",
+      origin: "https://0983-190-39-250-82.ngrok.io",
       methods: ["GET", "POST"],
       allowedHeaders: ["*"],
       credentials: true
