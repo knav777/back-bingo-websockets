@@ -8,83 +8,92 @@ class Api{
         var userid = 0;
 
         const io = require( '../index' ).VARS.io;
-        const IDs = await io.allSockets();
-        const count = io.engine.clientsCount;
+        //const IDs = await io.allSockets();
 
         io.on( 'connection', ( socket ) => {
 
             console.log( 'socket connection opened ID:', socket.id );
-            userid = count;
-            
-            socket.on( 'game:join', function(data) {
-                
-                data = {
-                    "hola": "hola"
-                }
-                console.log( data );
-                socket.emit( 'game:joined', data );
-            });
+            const count = io.engine.clientsCount;
 
-            let interval = null;
+            console.log( count );
 
-            if( interval ){
-                clearInterval( interval );
-            }
-
-            interval = setInterval( () =>{
-                let data = 'hoola';
-                socket.emit('game:joined', data );
-            }, 1000 )
+            /* if( count > 0 ){ */
+                console.log( 'countdown' )
+                let countdown = 5;
+                socket.emit( 'game:time', countdown );
+            //}
 
             socket.on("disconnect", () => {
                 console.log("Client disconnected");
             });
         });
-        
-        if( req.method === 'POST' ){
-        
-            const data = req.body;
-            const action = data.action;
-    
-            if( action === 'join' ){
-    
-                let board = [];
-    
-                for( let i = 0; i < 5 ; i++ ){
-                    board[i] = [];
-    
-                    for( let j = 0; j < 5; j++ ){
 
-                        if( i === 2 && j === 2 ){
-                            board[i][j] = 0;
-                        }
-                        else{
-                            board[i][j] = Api.generateRandom( 1, 75 );
-                        }
-                    }
-                }
-    
-                resp = {
-                    "action": "joined",
-                    "userid": userid,
-                    "board": board,
-                };
-                
-                res.json( resp );
-            }
-            else if( action === 'received' ){
-    
-    
-            }
-        }
-        else{
-            res.send( 'received' );
+        if( req.method === 'POST' ){
+
+            const bundle = {
+                "req": req,
+                "res": res,
+                "userid": 0
+            };
+            Api.actions( bundle );
         }
 
     }
 
     static generateRandom( min, max ) {
-        return Math.floor( ( Math.random() * ( max - min + 1 ) ) + min );
+
+        let num = Math.floor( ( Math.random() * ( max - min + 1 ) ) + min );
+        return parseInt( num, 10 );
+    }
+
+    static actions( bundle ){
+
+        const req = bundle.req;
+        const res = bundle.res;
+        const userid = bundle.userid;
+
+        const data = req.body;
+        const action = data.action;
+
+        if( action === 'join' ){
+
+            let board = [];
+
+            for( let i = 0; i < 5 ; i++ ){
+                board[i] = [];
+
+                for( let j = 0; j < 5; j++ ){
+
+                    do{
+                        var num = Api.generateRandom( 1, 75 );
+                        var is_num_exists = board.includes( num );
+                        var rule = false;
+                        
+                        if( j === 0 ) { rule = ( num >= 1 && num <= 15 ); }
+                        else if( j === 1 ) { rule = ( num >=16 && num <= 30 ); }
+                        else if( j === 2 ) { rule = ( num >=31 && num <= 45 ); }
+                        else if( j === 3 ) { rule = ( num >=46 && num <= 60 ); }
+                        else if( j === 4 ) { rule = ( num >=61 && num <= 75 ); }
+
+                    } while( ! rule && ! is_num_exists );
+
+                    if( i === 2 && j === 2 ){
+                        board[i][j] = 0;
+                    }
+                    else{
+                        board[i][j] = num;
+                    }
+                }
+            }
+
+            const resp = {
+                "action": "joined",
+                "userid": userid,
+                "board": board
+            };
+            
+            res.json( resp );
+        }
     }
 
 }
