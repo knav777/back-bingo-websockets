@@ -21,7 +21,7 @@ class Api{
             if( ! sockets_ids.includes( socket.id ) ){
                 sockets_ids.push( socket.id );
 
-                if( count > 0 && bbdd.users.length > 0 ){
+                if( count > 1 && bbdd.users.length > 1 ){
                     console.log( 'countdown' )
                     let countdown = 7;
                     io.sockets.emit( 'game:time', countdown );
