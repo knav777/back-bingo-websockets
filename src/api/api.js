@@ -8,7 +8,6 @@ class Api{
         var userid = 0;
 
         const io = require( '../index' ).VARS.io;
-        //const IDs = await io.allSockets();
 
         io.on( 'connection', ( socket ) => {
 
@@ -21,6 +20,23 @@ class Api{
                 console.log( 'countdown' )
                 let countdown = 5;
                 socket.emit( 'game:time', countdown );
+
+                setTimeout( () => {
+                    let numbers_selected = [];
+
+                    setInterval( () => {
+
+                        do{
+                            var number = Api.generateRandom( 1, 75 );
+                            var is_num_exists = numbers_selected.includes( number );                        
+
+                        }while( is_num_exists );
+
+                        numbers_selected.push( number );
+                        socket.emit( 'bingo:callNumber', number );
+                    }, 3000 );
+
+                }, (countdown * 1000) + 1000 );
             //}
 
             socket.on("disconnect", () => {
@@ -65,9 +81,11 @@ class Api{
                 for( let j = 0; j < 5; j++ ){
 
                     do{
-                        var num = Api.generateRandom( 1, 75 );
-                        var is_num_exists = board.includes( num );
                         var rule = false;
+                        var is_num_exists = true;
+
+                        var num = Api.generateRandom( 1, 75 );
+                        is_num_exists = Api.existsThisNumberHere( num, board );
                         
                         if( j === 0 ) { rule = ( num >= 1 && num <= 15 ); }
                         else if( j === 1 ) { rule = ( num >=16 && num <= 30 ); }
@@ -75,7 +93,7 @@ class Api{
                         else if( j === 3 ) { rule = ( num >=46 && num <= 60 ); }
                         else if( j === 4 ) { rule = ( num >=61 && num <= 75 ); }
 
-                    } while( ! rule && ! is_num_exists );
+                    } while( ! rule || is_num_exists );
 
                     if( i === 2 && j === 2 ){
                         board[i][j] = 0;
@@ -94,6 +112,19 @@ class Api{
             
             res.json( resp );
         }
+    }
+
+    static existsThisNumberHere( value, array ){
+
+        for( let i = 0; i < array.length; i++ ){
+            for( let j = 0; j < array[i].length; j++ ){
+                if( value == array[i][j] ){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 }
